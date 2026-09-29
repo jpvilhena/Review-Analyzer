@@ -35,7 +35,7 @@ def fetch_reviews(app_id, num_pages=1) -> list:
   return all_reviews
 
 
-reviews = fetch_reviews(730)
+reviews = fetch_reviews(1000360)
 
 with open('steam_reviews.json', 'w', encoding='utf-8') as f:
   json.dump(reviews, f, ensure_ascii=False, indent=4)
