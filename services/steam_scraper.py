@@ -1,7 +1,5 @@
 import requests
 import json
-import re
-import string
 
 def fetch_reviews(app_id, num_pages=1) -> list:
   ''' Function to get reviews from steam page of a specified game in multiples of 10 '''
@@ -9,17 +7,19 @@ def fetch_reviews(app_id, num_pages=1) -> list:
   cursor = "*"
 
   for _ in range(num_pages):
-    url = f"https://store.steampowered.com/appreviews/{app_id}"
+    url = "https://api.steampowered.com/IUserReviewsService/GetAppReviews/v1/"
     params = {
-      "json": 1,
-      "filter": "recent",
-      "language": "english",
+      "appid": app_id,
+      "filter": 1,
+      "languages": ["english"],
+      "purchase_type": 1,
       "num_per_page": 10,
       "cursor": cursor
     }
 
-    response = requests.get(url, params=params)
-    data = response.json()
+    response = requests.get(url, params={"input_json": json.dumps(params)}, timeout=30)
+    response.raise_for_status()
+    data = response.json()["response"]
     
     if "reviews" not in data:
       break
@@ -28,14 +28,14 @@ def fetch_reviews(app_id, num_pages=1) -> list:
     all_reviews.extend(reviews)
 
     cursor = data.get('cursor')
-    if not cursor:
+    if not cursor or not reviews:
       break
   
 
   return all_reviews
 
 
-reviews = fetch_reviews(1000360)
-
-with open('steam_reviews.json', 'w', encoding='utf-8') as f:
-  json.dump(reviews, f, ensure_ascii=False, indent=4)
+if __name__ == "__main__":
+  reviews = fetch_reviews(1000360)
+  with open('steam_reviews.json', 'w', encoding='utf-8') as f:
+    json.dump(reviews, f, ensure_ascii=False, indent=4)

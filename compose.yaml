@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: review_analyzer
+      POSTGRES_USER: review_analyzer
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U review_analyzer -d review_analyzer"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+    - "127.0.0.1:5432:5432"
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://review_analyzer:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/review_analyzer
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres_data:
