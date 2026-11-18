@@ -18,6 +18,10 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql://review_analyzer:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/review_analyzer
+      AZURE_ENDPOINT: ${AZURE_ENDPOINT:-}
+      AZURE_KEY: ${AZURE_KEY:-}
+    volumes:
+      - ./output:/app/output
     depends_on:
       db:
         condition: service_healthy
