@@ -3,12 +3,12 @@ import argparse
 import os
 import psycopg
 from dotenv import load_dotenv
-from services.database import save_reviews
-from services.steam_scraper import fetch_reviews
-from services.matching import timestamp
+from review_analyzer.storage.reviews import save_reviews
+from review_analyzer.collection.steam import fetch_reviews
+from review_analyzer.time import timestamp
 
 
-def main():
+def main(argv=None):
     load_dotenv()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app_id", type=int)
@@ -16,7 +16,7 @@ def main():
     parser.add_argument("--language", default="english")
     parser.add_argument("--start", help="Inclusive UTC date (YYYY-MM-DD)")
     parser.add_argument("--end", help="Exclusive UTC date (YYYY-MM-DD)")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.app_id <= 0 or args.pages <= 0:
         parser.error("App ID and pages must be positive")
     reviews = fetch_reviews(args.app_id, args.pages, language=args.language,

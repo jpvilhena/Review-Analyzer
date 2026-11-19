@@ -44,9 +44,3 @@ def fetch_reviews(app_id, num_pages=1, *, language="english", start=None, end=No
   
 
   return list({str(r["recommendationid"]): r for r in all_reviews}.values())
-
-
-if __name__ == "__main__":
-  reviews = fetch_reviews(1000360)
-  with open('steam_reviews.json', 'w', encoding='utf-8') as f:
-    json.dump(reviews, f, ensure_ascii=False, indent=4)

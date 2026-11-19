@@ -5,9 +5,14 @@ from pathlib import Path
 from psycopg.types.json import Jsonb
 
 
+def initialize(connection):
+    """Apply the additive schema without replacing source data."""
+    connection.execute(Path(__file__).with_name("schema.sql").read_text())
+
+
 def save_reviews(connection, app_id, reviews):
     """Persist each distinct payload without replacing earlier observations."""
-    connection.execute(Path(__file__).with_name("schema.sql").read_text())
+    initialize(connection)
     for review in reviews:
         fingerprint = hashlib.sha256(json.dumps(review, sort_keys=True).encode()).hexdigest()
         connection.execute(

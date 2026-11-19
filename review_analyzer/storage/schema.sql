@@ -41,3 +41,29 @@ CREATE TABLE IF NOT EXISTS analysis_runs (
     case_id TEXT NOT NULL REFERENCES patches(case_id),
     report JSONB NOT NULL
 );
+CREATE TABLE IF NOT EXISTS validation_batches (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    run_id BIGINT NOT NULL REFERENCES analysis_runs(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data JSONB NOT NULL
+);
+CREATE TABLE IF NOT EXISTS review_annotations (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    batch_id BIGINT NOT NULL REFERENCES validation_batches(id),
+    case_id TEXT NOT NULL REFERENCES patches(case_id),
+    snapshot_id BIGINT NOT NULL REFERENCES review_snapshots(id),
+    change_id TEXT NOT NULL,
+    reviewer TEXT NOT NULL,
+    label TEXT NOT NULL CHECK (label IN ('complaint_request','praise','neutral_mention','unrelated','uncertain')),
+    sentiment TEXT CHECK (sentiment IN ('positive','negative','neutral','mixed','uncertain')),
+    rationale TEXT NOT NULL,
+    annotated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS annotation_lookup_idx
+    ON review_annotations(case_id, snapshot_id, change_id, reviewer, id DESC);
+CREATE TABLE IF NOT EXISTS benchmark_evaluations (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    batch_id BIGINT NOT NULL REFERENCES validation_batches(id),
+    evaluated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    result JSONB NOT NULL
+);

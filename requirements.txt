@@ -4,3 +4,4 @@ azure-ai-textanalytics
 psycopg[binary]>=3.2,<4
 python-dotenv>=1,<2
 scikit-learn>=1.5,<2
+matplotlib>=3.9,<4
